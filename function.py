@@ -675,7 +675,7 @@ class Fun:
             result_is_positive = ((np.array_equal(self.coefficients, other.coefficients) and self.isreal())
                                   or (np.array_equal(np.conjugate(self.coefficients), other.coefficients)))
 
-            #% [TODO] Update resolved:
+            # [TODO] Update resolved:
             #f.resolved = f.resolved and g.resolved
 
             # we simplify here:
