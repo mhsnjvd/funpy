@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import eig
+from scipy.interpolate import CubicSpline
 import matplotlib.pyplot as plt
 import copy
 import types
@@ -1436,15 +1437,38 @@ class Function:
         domain_2 = other.domain.copy()
         return np.array_equal(domain_1, domain_2)
 
-    def __init__(self, fun=None, *args, **kwargs):
+    def __init__(self, fun=None, xdata=None, ydata=None, *args, **kwargs):
+
+        default_domain = np.array([-1.0, 1.0])
+
+        # If discrete data in pairs is passed:
+        if xdata is not None:
+            assert ydata is not None, f'xdata is {xdata}, while ydata is {ydata}'
+            assert len(xdata) == len(ydata)
+            assert fun is None, f'with xdata and ydata, fun must be None'
+            cs = CubicSpline(xdata, ydata)
+            fun = lambda x: cs(x)
+            default_domain = 1.0 * np.array([np.min(xdata), np.max(xdata)])
+
         # Extract the domain from kwargs and remove it
-        self.domain = 1.0 * np.array(kwargs.pop('domain', np.array([-1.0, 1.0])))
+        self.domain = 1.0 * np.array(kwargs.pop('domain', default_domain))
         self.npieces = len(self.domain) - 1
         self.pieces = self.npieces * [Fun()]
+
+        # Extract the lengths of piecewise smooth functions
+        # Note that the default Fun Class length is None, hence the following
+        # default:
+        lengths = kwargs.pop('lengths', self.npieces * [None])
+
+        # if 'length' is specified, there is only one global piece:
+        length = kwargs.pop('length', None)
+        if length is not None:
+            lengths = [length]
 
         for i in range(self.npieces):
             # Update the lambda passed in to map onto [-1, 1]
             a, b = self.domain[i], self.domain[i + 1]
+            kwargs['length'] = lengths[i]
             if fun is not None:
                 kwargs['fun'] = lambda x: fun(self.map_onto_ab(x, a, b))
 

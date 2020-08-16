@@ -6,6 +6,14 @@ from scipy import special
 
 
 class TestFunction(unittest.TestCase):
+    def test_construction_discrete_data(self):
+        """Test Constuction with discrete x and y data"""
+        x = np.linspace(0, 10, 101)
+        y = np.linspace(0, 10, 101)
+        f = Function(xdata=x, ydata=y)
+        self.assertTrue(np.allclose(f.domain, np.array([0.0, 10.0]), atol=1e-15))
+        self.assertEqual(len(f), 2)
+
     def test_construction_fixed_length(self):
         """Test construction when length is given
         :return:
@@ -18,6 +26,11 @@ class TestFunction(unittest.TestCase):
 
         f = Function(lambda x: x, length=2)
         self.assertEqual(len(f), 2)
+
+        f = Function(lambda x: np.abs(x), lengths=[2, 2], domain=[-1, 0, 1])
+        self.assertEqual(len(f.pieces), 2)
+        self.assertEqual(len(f.pieces[0]), 2)
+        self.assertEqual(len(f.pieces[1]), 2)
 
         f = Function(fun, length=201)
         self.assertEqual(len(f), 201)
