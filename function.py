@@ -1446,7 +1446,13 @@ class Function:
             assert ydata is not None, f'xdata is {xdata}, while ydata is {ydata}'
             assert len(xdata) == len(ydata)
             assert fun is None, f'with xdata and ydata, fun must be None'
-            cs = CubicSpline(xdata, ydata)
+
+            # xdata must be sorted for spline construction:
+            sorted_idx = np.argsort(xdata)
+            xdata_sorted = xdata[sorted_idx]
+            ydata_sorted = ydata[sorted_idx]
+
+            cs = CubicSpline(xdata_sorted, ydata_sorted)
             fun = lambda x: cs(x)
             default_domain = 1.0 * np.array([np.min(xdata), np.max(xdata)])
 

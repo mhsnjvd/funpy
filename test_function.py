@@ -14,6 +14,12 @@ class TestFunction(unittest.TestCase):
         self.assertTrue(np.allclose(f.domain, np.array([0.0, 10.0]), atol=1e-15))
         self.assertEqual(len(f), 2)
 
+        x = np.random.rand(10)
+        y = np.random.rand(10)
+        f = Function(xdata=x, ydata=y)
+        error = f(x) - y
+        self.assertTrue(np.linalg.norm(f(x) - y, np.inf) < 100 * 1.0e-6)
+
     def test_construction_fixed_length(self):
         """Test construction when length is given
         :return:
